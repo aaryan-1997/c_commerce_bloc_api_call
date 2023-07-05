@@ -1,8 +1,17 @@
+import 'package:c_commerce_bloc_api_call/src/features/auth/bloc/auth_bloc.dart';
+import 'package:c_commerce_bloc_api_call/src/features/home/bloc/home_bloc.dart';
+import 'package:c_commerce_bloc_api_call/src/route/route.gr.dart';
+import 'package:c_commerce_bloc_api_call/src/util/local_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await LocalDatabase.initialize();
   runApp(const MyApp());
 }
+
+AppRouter appRouter = AppRouter();
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -10,58 +19,24 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (BuildContext context) => AuthBloc(),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+        BlocProvider(
+          create: (BuildContext context) => HomeBloc(),
+        ),
+      ],
+      child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
+        routeInformationParser: appRouter.defaultRouteParser(),
+        routerDelegate: appRouter.delegate(),
+        title: 'E-Commerce App',
+        theme: ThemeData(
+          primarySwatch: Colors.teal,
+          appBarTheme: const AppBarTheme(elevation: 0),
+        ),
       ),
     );
   }
